@@ -31,7 +31,7 @@ def call_function(function_call_part, verbose=False):
 
     function_name = function_call_part.name
     function_args = dict(function_call_part.args)
-    function_args["working_directory":WORKING_DIRECTORY]
+    function_args["working_directory"] = WORKING_DIRECTORY
 
     if function_name not in function_map:
         return types.Content(
