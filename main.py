@@ -1,5 +1,6 @@
 import os
 import argparse
+
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -51,12 +52,13 @@ def generate_content(client, messages, verbose):
         ),
     )
 
-    for candidate in response.candidates:
-        messages.append(candidate.content)
-
     if verbose:
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+
+    if response.candidates:
+        for candidate in response.candidates:
+            messages.append(candidate.content)
 
     if not response.function_calls:
         return response.text
