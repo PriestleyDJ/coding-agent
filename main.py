@@ -3,6 +3,8 @@ import argparse
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from call_functions import available_functions
+from prompts import system_prompt
 
 # Load environment
 load_dotenv()
@@ -18,7 +20,6 @@ parser.add_argument(
 args = parser.parse_args()
 user_prompt = args.user_prompt
 
-
 # Message history
 messages = [
     types.Content(role="user", parts=[types.Part(text=user_prompt)]),
@@ -28,6 +29,9 @@ messages = [
 response = client.models.generate_content(
     model="gemini-2.0-flash-001",
     contents=messages,
+    config=types.GenerateContentConfig(
+        tools=[available_functions], system_instruction=system_prompt
+    ),
 )
 
 if args.verbose:
@@ -35,4 +39,8 @@ if args.verbose:
     print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
     print(f"User prompt: {user_prompt}")
 
-print(f"Response: {response.text}")
+if response.function_calls:
+    for function in response.function_calls:
+        print(f"Calling function: {function.name}({function.args})")
+else:
+    print(f"Response: {response.text}")
